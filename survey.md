@@ -1,7 +1,7 @@
 # Maybe Transformer-like RNN will be the future
 ## Introduction
 Transformer-based 模型如GPT-series、Llama-series、Baichuan-series 等已充分证明其有效性，然而它们仍存在较为显著的问题，如模型训练/推理速度慢、推理长度受限、模型规模过大等。在此背景下，模型轻量化(Model Light-Weighting, MLW)是沿着大模型训练/推理加速(speed up)、瘦身（slimming）等方向所提出的一系列方法的总称，跨越了整个[模型生命周期](https://blog.csdn.net/universsky2015/article/details/136413022)，如图一所示。
-![图一](survey_on_model_light-weightning.jpg)  
+![图一](figures/survey_on_model_light-weightning.jpg)  
 图一：轻量化在模型生命周期中的相关技术  
   
 - 模型设计阶段：在模型设计阶段，模型轻量化通常设计新的、更加轻量的架构以代替传统的Transformer架构。Transformer-like RNN架构就是这一阶段中所产出的重要方法之一。
@@ -43,7 +43,6 @@ Transformer-based 模型如GPT-series、Llama-series、Baichuan-series 等已充
 $$
 V \coloneqq \mathrm{X}W^{V}, K \coloneqq \mathrm{X}W^{K}, Q \coloneqq \mathrm{X}W^{Q},  \qquad (1)
 $$
-
 $$
 A_t^{'} \coloneqq \mathrm{Q}_t \mathrm{K}^{\top},  \qquad (2)
 $$
@@ -66,9 +65,12 @@ $$
 & = [\mathrm{X}W^{G}\mathrm{X}^{\top}]\mathrm{X}W^{V} \\
 & = A^{'} \mathrm{X} W^{V}
 \end{aligned}, \qquad (6)$$  
-如式(6)所示,$W^{G}=W^{Q}W^{K\top}$且$A^{'}=\mathrm{X}W^{G}\mathrm{X}^{\top}$。  
+如式(6)所示, $W^{G}=W^{Q}W^{K\top}$ 且$A^{'}=\mathrm{X}W^{G}\mathrm{X}^{\top}$ 。  
 #### Transformer-based RNN
-于RNN结构在递归推理上的具有线性复杂度的特点，以RWKV[2]、Mamba[3]以及Griffin[4]为代表的模型将RNN优点与Transformer优点相结合，以实现推理线性复杂度和超长序列推理等能力。  
+鉴于RNN结构在递归推理上的具有线性复杂度的特点，以RWKV[2]、Mamba[3]以及Griffin[4]为代表的模型将RNN优点与Transformer优点相结合，以实现推理线性复杂度和超长序列推理等能力。  
+
+
+
 ## Reference  
 [1] Guo M H, Liu Z N, Mu T J et al. Beyond Self-attention: External Attention using Two Linear Layers for Visual Task [J]. IEEE Transactions on Pattern Analysis and Machine Intelligence, 2023(45):5436-5447.
 
