@@ -43,7 +43,6 @@ Transformer-based 模型如GPT-series、Llama-series、Baichuan-series 等已充
 $$
 V \coloneqq \mathrm{X}W^{V}, K \coloneqq \mathrm{X}W^{K}, Q \coloneqq \mathrm{X}W^{Q},  \qquad (1)
 $$
-
 $$
 A_t^{'} \coloneqq \mathrm{Q}_t \mathrm{K}^{\top},  \qquad (2)
 $$
