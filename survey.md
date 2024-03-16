@@ -64,12 +64,19 @@ $$
 & = \mathrm{X} (W^{Q}W^{K\top}) \mathrm{X}^{\top} (\mathrm{X}W^{V}) \\
 & = [\mathrm{X}W^{G}\mathrm{X}^{\top}]\mathrm{X}W^{V} \\
 & = A^{'} \mathrm{X} W^{V}
-\end{aligned}, \qquad (6)$$  
+\end{aligned},
+ \qquad (6)$$  
 如式(6)所示, $W^{G}=W^{Q}W^{K\top}$ 且$A^{'}=\mathrm{X}W^{G}\mathrm{X}^{\top}$ 。  
 #### Transformer-based RNN
 鉴于RNN结构在递归推理上的具有线性复杂度的特点，以RWKV[2]、Mamba[3]以及Griffin[4]为代表的模型将RNN优点与Transformer优点相结合，以实现推理线性复杂度和超长序列推理等能力。  
-
-
+#### RNN
+对于时间步$t$,输入向量为$\mathbf{x}_t \in \mathbb R^d$,隐状态向量为$\mathbf{h}_t \in \mathbb{R}^h$,输出向量为$\mathbf{y}_t \in \mathbb{R}^q$ ,$\circ \mathbf{W}_{xh} \in \mathbb{R}^{h \times d}$是输出权重矩阵,$\mathbf{W}_{hh}\in \mathbb{R}^{h\times h}$是隐状态权重举证，$\mathbb{W}_{hy} \in \mathbb{R}^{q \times h}$是输出权重矩阵， $ \mathbf{b}_h \in \mathbb{R}^h$是偏置向量。  
+RNN的更新公式为：  
+$$\begin{aligned} 
+\mathbf{h}_t &= \sigma (\mathbf{W}_{xh}\mathbf{x}_{t}+\mathbf{W}_{lh}\mathbf{h}_{t-1}+\mathbf{b}_h) \\
+\mathbf{y}_t &= softmax(\mathbf{W}_{ly}*\mathbf{h}_t), 
+\end{aligned}
+$$
 
 ## Reference  
 [1] Guo M H, Liu Z N, Mu T J et al. Beyond Self-attention: External Attention using Two Linear Layers for Visual Task [J]. IEEE Transactions on Pattern Analysis and Machine Intelligence, 2023(45):5436-5447.
