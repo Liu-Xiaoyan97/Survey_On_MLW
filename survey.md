@@ -2,7 +2,7 @@
 ## Introduction
 Transformer-based 模型如GPT-series、Llama-series、Baichuan-series 等已充分证明其有效性，然而它们仍存在较为显著的问题，如模型训练/推理速度慢、推理长度受限、模型规模过大等。在此背景下，模型轻量化(Model Light-Weighting, MLW)是沿着大模型训练/推理加速(speed up)、瘦身（slimming）等方向所提出的一系列方法的总称，跨越了整个[模型生命周期](https://blog.csdn.net/universsky2015/article/details/136413022)，如图一所示。
 ![图一](figures/survey_on_model_light-weightning.jpg)  
-图一：轻量化在模型生命周期中的相关技术  
+**图一：轻量化在模型生命周期中的相关技术。**  
   
 - 模型设计阶段：在模型设计阶段，模型轻量化通常设计新的、更加轻量的架构以代替传统的Transformer架构。Transformer-like RNN架构就是这一阶段中所产出的重要方法之一。
 
@@ -40,26 +40,20 @@ Transformer-based 模型如GPT-series、Llama-series、Baichuan-series 等已充
 
 #### Self Attention with Transformer
 在阐述上述四类工作之前，本文将介绍传统的点积注意力(Dot Product Attention, DPA)。  
-$$
-V \coloneqq \mathrm{X}W^{V}, K \coloneqq \mathrm{X}W^{K}, Q \coloneqq \mathrm{X}W^{Q},  \qquad (1)
-$$
-$$
-A_t^{'} \coloneqq \mathrm{Q}_t \mathrm{K}^{\top},  \qquad (2)
-$$
- 使用softmax归一化注意力：  
- $$  
-
- A_{t,i} \coloneqq \frac{exp(A_{t,i}^{'})}{\textstyle\sum_{j=0}^{L-1}exp (A_{t,j}^{'})} , \qquad  (3)
- $$
- 使用注意力分数加权$V$，得到最终的Token表示：  
- $$
- Z_t \coloneqq A_t \mathrm{V}, \qquad (4)
- $$  
- 式(2)-(4)可合并写为：  
- $$Z_t \coloneqq \sum_{j=0}^{L-1} \underbrace{softmax(\mathrm{QK^{\top}})}_{\text{full-attention weights}} \cdot \mathrm{V}_i, \qquad (5)$$ 
- 当输入三者相同时，即均为$\mathrm{X}$时，为自主意力(Self Attention)。如式(5)所示，full-attention weights是$A^{'}$的归一化结果，现不采用归一化，则式(5)可表示为:  
-
- $$\begin{aligned} Z_t & \coloneqq \underbrace{\mathrm{QK^{\top}}}_{A^{'}(eq.2)} \cdot \mathrm{V}_i \\
+```math
+V \coloneqq \mathrm{X}W^{V}, K \coloneqq \mathrm{X}W^{K}, Q \coloneqq \mathrm{X}W^{Q},  \qquad (1)$$
+$$A_t^{'} \coloneqq \mathrm{Q}_t \mathrm{K}^{\top},  \qquad (2)
+```
+使用softmax归一化注意力：  
+```math
+A_{t,i} \coloneqq \frac{exp(A_{t,i}^{'})}{\textstyle\sum_{j=0}^{L-1}exp (A_{t,j}^{'})} , \qquad  (3)
+```
+使用注意力分数加权$V$，得到最终的Token表示：  
+$$Z_t \coloneqq A_t \mathrm{V}, \qquad (4)$$  
+式(2)-(4)可合并写为：  
+$$Z_t \coloneqq \sum_{j=0}^{L-1} \underbrace{softmax(\mathrm{QK^{\top}})}_{\text{full-attention weights}} \cdot \mathrm{V}_i, \qquad (5)$$ 
+当输入三者相同时，即均为$\mathrm{X}$时，为自主意力(Self Attention)。如式(5)所示，full-attention weights是$A^{'}$的归一化结果，现不采用归一化，则式(5)可表示为:  
+$$\begin{aligned} Z_t & \coloneqq \underbrace{\mathrm{QK^{\top}}}_{A^{'}(eq.2)} \cdot \mathrm{V}_i \\
 & = \mathrm{X}W^{Q}(\mathrm{X}W^{K})^{\top} (\mathrm{X}W^{V}) \\
 & = \mathrm{X} (W^{Q}W^{K\top}) \mathrm{X}^{\top} (\mathrm{X}W^{V}) \\
 & = [\mathrm{X}W^{G}\mathrm{X}^{\top}]\mathrm{X}W^{V} \\
@@ -68,13 +62,17 @@ $$
  \qquad (6)$$  
 如式(6)所示, $W^{G}=W^{Q}W^{K\top}$ 且$A^{'}=\mathrm{X}W^{G}\mathrm{X}^{\top}$ 。  
 #### Transformer-based RNN
-鉴于RNN结构在递归推理上的具有线性复杂度的特点，以RWKV[2]、Mamba[3]以及Griffin[4]为代表的模型将RNN优点与Transformer优点相结合，以实现推理线性复杂度和超长序列推理等能力。  
-#### RNN
+鉴于RNN结构在递归推理上的具有线性复杂度的特点，以RWKV[2]、Mamba[3]以及Griffin[4]为代表的模型将RNN优点与Transformer优点相结合，以实现推理线性复杂度和超长序列推理等能力。 下面，先对RNN[15]、LSTM[16]以及GRU[17]模型(如图2所示）进行分析，研究其内在数学原理，以更好的理解RNN-based Transformer模型的思想。
+![图二](figures/RNNs.jpg)  
+**经典的RNN模型：(a)循环神经网络RNN；(b)长短期记忆网络LSTM;(c)门控神经网络GRU.**
+
+
+##### RNN
 对于时间步$t$,输入向量为$\mathbf{x}_t \in \mathbb R^d$,隐状态向量为$\mathbf{h}_t \in \mathbb{R}^h$,输出向量为$\mathbf{y}_t \in \mathbb{R}^q$ ,$\circ \mathbf{W}_{xh} \in \mathbb{R}^{h \times d}$是输出权重矩阵,$\mathbf{W}_{hh}\in \mathbb{R}^{h\times h}$是隐状态权重举证，$\mathbb{W}_{hy} \in \mathbb{R}^{q \times h}$是输出权重矩阵， $ \mathbf{b}_h \in \mathbb{R}^h$是偏置向量。  
 RNN的更新公式为：  
 $$\begin{aligned} 
-\mathbf{h}_t &= \sigma (\mathbf{W}_{xh}\mathbf{x}_{t}+\mathbf{W}_{lh}\mathbf{h}_{t-1}+\mathbf{b}_h) \\
-\mathbf{y}_t &= softmax(\mathbf{W}_{ly}*\mathbf{h}_t), 
+\mathbf{h}_t &= \sigma (\mathbf{W}_{xh}\mathbf{x}_{t}+\mathbf{W}_{hh}\mathbf{h}_{t-1}+\mathbf{b}_h) \\
+\mathbf{y}_t &= softmax(\mathbf{W}_{hy}*\mathbf{h}_t), 
 \end{aligned}
 $$
 
@@ -106,3 +104,9 @@ $$
 [13] Zhai S F, Talboot W, Srivastava N et al. An Attention Free Transformer [C]. In ICLR 2021, virtual, 2021. https://arxiv.org/pdf/2105.14103.pdf
 
 [14] Qin Z, Li D, Sun W G et al. TransNormerLLM: A Faster and Better Large Language Model with Improved TransNormer [J/OL]. arXiv, 2023, cs.CL/2307.14995. https://arxiv.org/pdf/2307.14995.pdf
+
+[15] Jordan I. M. Serial Order: A Parallel Distributed Processing Approach[J]. Advances in Psychology. 1997, 121:471-495. 
+
+[16] Hochreiter S, Schmidhuber J. Long Short-Term Memory[J]. Neural Computation. 1997, 9:1735-1780.
+
+[17]  Chung J, Gulcehre C, Cho K et al. Empirical Evaluation of Gated Recurrent Neural Networks on Sequence Modeling[C]. In NIPS 2014. 2014. 
