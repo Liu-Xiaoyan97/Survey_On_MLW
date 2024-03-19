@@ -75,7 +75,7 @@ Z_t \coloneqq \sum_{j=0}^{L-1} \underbrace{softmax(\mathrm{QK^{\top}})}_{\text{f
 **经典的RNN模型：(a)循环神经网络RNN；(b)长短期记忆网络LSTM;(c)门控神经网络GRU.**
 
 ##### RNN
-对于时间步$t$,输入向量为 $\mathbf{x}_t \in \mathbb R^d$ ,隐状态向量为 $\mathbf{h}_t \in \mathbb{R}^h$ ,输出向量为 $\mathbf{y}_t \in \mathbb{R}^q$ ,$\circ \mathbf{W}_{xh} \in \mathbb{R}^{h \times d}$是输出权重矩阵, $\mathbf{W}_{hh}\in \mathbb{R}^{h\times h}$ 是隐状态权重矩阵，$\mathbb{W}_{hy} \in \mathbb{R}^{q \times h}$ 是输出权重矩阵， $\mathbf{b}_h \in \mathbb{R}^h$ 是偏置向量。  
+对于时间步 $t$，输入向量为 $\mathbf{x}_t \in \mathbb R^d$，隐状态向量为 $\mathbf{h}_t \in \mathbb{R}^h$，输出向量为 $\mathbf{y}_t \in \mathbb{R}^q$ ，$\circ \mathbf{W}_{xh} \in \mathbb{R}^{h \times d}$是输出权重矩阵，$\mathbf{W}_{hh}\in \mathbb{R}^{h\times h}$ 是隐状态权重矩阵，$\mathbb{W}_{hy} \in \mathbb{R}^{q \times h}$ 是输出权重矩阵， $\mathbf{b}_h \in \mathbb{R}^h$ 是偏置向量。  
 RNN的更新公式为：  
 ```math
 \begin{aligned} \mathbf{h}_t &= \sigma (\mathbf{W}_{xh}\mathbf{x}_{t}+\mathbf{W}_{hh}\mathbf{h}_{t-1}+\mathbf{b}_h) \\
