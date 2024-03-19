@@ -50,7 +50,7 @@ A_t^{'} \coloneqq \mathrm{Q}_t \mathrm{K}^{\top},  \qquad (2)
 ```math
 A_{t,i} \coloneqq \frac{exp(A_{t,i}^{'})}{\textstyle\sum_{j=0}^{L-1}exp (A_{t,j}^{'})} , \qquad  (3)
 ```
-使用注意力分数加权$V$，得到最终的Token表示：  
+使用注意力分数加权$`V$`，得到最终的Token表示：  
 ```math
 Z_t \coloneqq A_t \mathrm{V}, \qquad (4)
 ``` 
@@ -58,7 +58,7 @@ Z_t \coloneqq A_t \mathrm{V}, \qquad (4)
 ```math
 Z_t \coloneqq \sum_{j=0}^{L-1} \underbrace{softmax(\mathrm{QK^{\top}})}_{\text{full-attention weights}} \cdot \mathrm{V}_i, \qquad (5)
 ``` 
-当输入三者相同时，即均为$\mathrm{X}$时，为自主意力(Self Attention)。如式(5)所示，full-attention weights是$A^{'}$的归一化结果，现不采用归一化，则式(5)可表示为:  
+当输入三者相同时，即均为$`\mathrm{X}$`时，为自主意力(Self Attention)。如式(5)所示，full-attention weights是$`A^{'}$`的归一化结果，现不采用归一化，则式(5)可表示为:  
 ```math
 \begin{aligned} Z_t & \coloneqq \underbrace{\mathrm{QK^{\top}}}_{A^{'}(eq.2)} \cdot \mathrm{V}_i \\
 & = \mathrm{X}W^{Q}(\mathrm{X}W^{K})^{\top} (\mathrm{X}W^{V}) \\
@@ -68,14 +68,14 @@ Z_t \coloneqq \sum_{j=0}^{L-1} \underbrace{softmax(\mathrm{QK^{\top}})}_{\text{f
 \end{aligned},
  \qquad (6)
  ```
-如式(6)所示, $W^{G}=W^{Q}W^{K\top}$ 且 $A^{'} =\mathrm{X}W^{G}\mathrm{X}^{\top}$。  
+如式(6)所示, $`W^{G}=W^{Q}W^{K\top}$` 且 $`A^{'} =\mathrm{X}W^{G}\mathrm{X}^{\top}$`。  
 #### Transformer-based RNN
 鉴于RNN结构在递归推理上的具有线性复杂度的特点，以RWKV[2]、Mamba[3]以及Griffin[4]为代表的模型将RNN优点与Transformer优点相结合，以实现推理线性复杂度和超长序列推理等能力。 下面，先对RNN[15]、LSTM[16]以及GRU[17]模型(如图2所示）进行分析，研究其内在数学原理，以更好的理解RNN-based Transformer模型的思想。
 ![图二](figures/RNNs.jpg)  
 **经典的RNN模型：(a)循环神经网络RNN；(b)长短期记忆网络LSTM;(c)门控神经网络GRU.**
 
 ##### RNN
-对于时间步 $t$，输入向量为 $\mathbf{x}_t \in \mathbb R^d$，隐状态向量为 $\mathbf{h}_t \in \mathbb{R}^h$，输出向量为 $\mathbf{y}_t \in \mathbb{R}^q$ ，$\circ \mathbf{W}_{xh} \in \mathbb{R}^{h \times d}$是输出权重矩阵，$\mathbf{W}_{hh}\in \mathbb{R}^{h\times h}$ 是隐状态权重矩阵，$\mathbb{W}_{hy} \in \mathbb{R}^{q \times h}$ 是输出权重矩阵， $\mathbf{b}_h \in \mathbb{R}^h$ 是偏置向量。  
+对于时间步 $`t`$，输入向量为 $`\mathbf{x}_t \in \mathbb R^d`$，隐状态向量为 $`\mathbf{h}_t \in \mathbb{R}^h`$，输出向量为 $`\mathbf{y}_t \in \mathbb{R}^q`$ ，$`\circ \mathbf{W}_{xh} \in \mathbb{R}^{h \times d}`$是输出权重矩阵，$`\mathbf{W}_{hh}\in \mathbb{R}^{h\times h}`$ 是隐状态权重矩阵，$`\mathbb{W}_{hy} \in \mathbb{R}^{q \times h}$ 是输出权重矩阵， $`\mathbf{b}_h \in \mathbb{R}^h`$ 是偏置向量。  
 RNN的更新公式为：  
 ```math
 \begin{aligned} \mathbf{h}_t &= \sigma (\mathbf{W}_{xh}\mathbf{x}_{t}+\mathbf{W}_{hh}\mathbf{h}_{t-1}+\mathbf{b}_h) \\
