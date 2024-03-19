@@ -41,8 +41,7 @@ Transformer-based 模型如GPT-series、Llama-series、Baichuan-series 等已充
 #### Self Attention with Transformer
 在阐述上述四类工作之前，本文将介绍传统的点积注意力(Dot Product Attention, DPA)。  
 ```math
-V \coloneqq \mathrm{X}W^{V}, K \coloneqq \mathrm{X}W^{K}, Q \coloneqq \mathrm{X}W^{Q},  \qquad (1)```
-```math
+V \coloneqq \mathrm{X}W^{V}, K \coloneqq \mathrm{X}W^{K}, Q \coloneqq \mathrm{X}W^{Q},  \qquad (1) \\
 A_t^{'} \coloneqq \mathrm{Q}_t \mathrm{K}^{\top},  \qquad (2)
 ```
 使用softmax归一化注意力：  
