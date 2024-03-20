@@ -75,13 +75,115 @@ Z_t \coloneqq \sum_{j=0}^{L-1} \underbrace{softmax(\mathrm{QK^{\top}})}_{\text{f
 **经典的RNN模型：(a)循环神经网络RNN；(b)长短期记忆网络LSTM;(c)门控神经网络GRU.**
 
 ##### RNN
-对于时间步 $`t`$，输入向量为 $`\mathbf{x}_t \in \mathbb R^d`$，隐状态向量为 $`\mathbf{h}_t \in \mathbb{R}^h`$，输出向量为 $`\mathbf{y}_t \in \mathbb{R}^q`$ ，$`\mathbf{W}_{xh} \in \mathbb{R}^{h \times d}`$是输出权重矩阵，$`\mathbf{W}_{hh}\in \mathbb{R}^{h\times h}`$ 是隐状态权重矩阵，$`\mathbf{W}_{hy} \in \mathbb{R}^{q \times h}`$是输出权重矩阵， $`\mathbf{b}_h \in \mathbb{R}^h`$ 是偏置向量。  
+对于时间步 $`t`$，输入向量为 $`\mathbf{x}_t \in \mathbb R^d`$，隐状态向量为 $`\mathbf{h}_t \in \mathbb{R}^h`$，输出向量为 $`\mathbf{y}_t \in \mathbb{R}^q`$ ，$`\mathbf{W}_{h} \in \mathbb{R}^{h \times d}`$ 是隐状态权重矩阵，$`\mathbf{b}_h \in \mathbb{R}^h`$ 是偏置向量。  
 RNN的更新公式为：  
+$$
+\mathbf{y}_{t},\mathbf{h}_t = tanh (\mathbf{W}_{h}[\mathbf{h}_{t-1},\mathbf{x}_{t}]+\mathbf{b}_h), \qquad (7)
+$$
 ```math
-\begin{aligned} \mathbf{h}_t &= \sigma (\mathbf{W}_{xh}\mathbf{x}_{t}+\mathbf{W}_{hh}\mathbf{h}_{t-1}+\mathbf{b}_h) \\
-\mathbf{y}_t &= softmax(\mathbf{W}_{hy}*\mathbf{h}_t), 
+\mathbf{y}_{t},\mathbf{h}_t = tanh (\mathbf{W}_{h}[\mathbf{h}_{t-1},\mathbf{x}_{t}]+\mathbf{b}_h), \qquad (7)
+```
+RNN中使用tanh作为激活函数，参数更新时，累乘可能会导致梯度消失，当参数导数大于1时，则累乘会导致梯度爆炸。因此，基于RNN，Hochreiter[16]等人提出LSTM模型，以缓解梯度消失或爆炸现象。
+##### LSTM  
+如图二(b)所示，LSTM包含输入门、输出门、遗忘门以及细胞状态四个部分。
+- 遗忘门
+$$
+f_{t} = \sigma (\mathbf{W}_{f}[\mathbf{h}_{t-1},\mathbf{x}_t]+\mathbf{b}_f), \qquad (8)
+$$
+```math
+f_{t} = \sigma (\mathbf{W}_{f}[\mathbf{h}_{t-1},\mathbf{x}_t]+\mathbf{b}_f), \qquad (8)
+```
+遗忘门控制遗忘速率，这取决于其激活函数sigmoid，sigmoid函数取值为$[0, 1]$，$0$表示完全遗忘，$1$表示完全不遗忘。
+- 输入门 
+$$
+\begin{aligned}
+\mathbf{i}_t &= \sigma(\mathbf{W}_i[\mathbf{h}_{t-1}, \mathbf{x}_t]+\mathbf{b}_i)\\
+\tilde{\mathbf{C}}_{t}&=tanh(\mathbf{W}_{C}[\mathbf{h}_{t-1}, \mathbf{x}_t]+\mathbf{b}_{C})
+\end{aligned}, \qquad (9)
+$$
+```math
+\begin{aligned}
+\mathbf{i}_t &= \sigma(\mathbf{W}_i[\mathbf{h}_{t-1}, \mathbf{x}_t]+\mathbf{b}_i)\\
+\tilde{\mathbf{C}}_{t}&=tanh(\mathbf{W}_{C}[\mathbf{h}_{t-1}, \mathbf{x}_t]+\mathbf{b}_{C})
+\end{aligned}, \\qquad (9)
+```  
+输入门$\mathbf{i}_{t}$与遗忘门公式一致(见式(8))，$\tilde{\mathbf{C}}_{t}$则与传统RNN一致(见公式(7))。
+- 细胞状态
+$$
+\mathbf{C}_{t} = f_t \otimes \mathbf{C}_{t-1} + \mathbf{i}_{t} \otimes \tilde{\mathbf{C}}_{t}, \qquad (10)
+$$
+```math
+\mathbf{C}_{t} = f_t \otimes \mathbf{C}_{t-1} + \mathbf{i}_{t} \otimes \tilde{\mathbf{C}}_{t}, \qquad (10)
+```
+细胞状态是对上一个细胞状态特征及当前输入特征的筛选。
+
+- 输出门
+$$
+\begin{aligned}
+\mathbf{o}_t &= \sigma (\mathbf{W}_{o}[\mathbf{h}_{t-1}, \mathbf{x}_t]+\mathbf{b}_{o}) \\
+\mathbf{h}_t &= \mathbf{o}_t \otimes tanh(\mathbf{C}_t)
+\end{aligned}, \qquad (11)
+$$
+```math
+\begin{aligend}
+\mathbf{o}_t &= \sigma (\mathbf{W}_{o}[\mathbf{h}_{t-1}, \mathbf{x}_t]+\mathbf{b}_{o}) \\
+\mathbf{h}_t &= \mathbf{o}_t \otimes tanh(\mathbf{C}_t)
+\end{aligend}, \qquad (11)
+```
+LSTM相较于传统RNN模型，在长序列建模上，有更好的建模能力（即长距离依赖），缓解了梯度消失或爆炸问题。但内部结构比RNN更加复杂，因此计算也更加复杂。  
+
+##### GRU
+GRU[17] (见图二(c))是在RNN和LSTM基础上的改进模型，它能有效捕捉长距离依赖，也可缓解梯度消失或爆炸现象，同时结构和计算比LSTM更加精简。它只包含重置门和更新门。
+- 重置门
+$$
+\begin{aligned}
+\mathbf{r}_t &= \sigma (\mathbf{W}_r [\mathbf{h}_{t-1}, \mathbf{x}_t]), \\
+\mathbf{i}_t &= \mathbf{r}_t \otimes \mathbf{h}_{t-1} 
+\end{aligned}, \qquad (12)
+$$
+```math
+\begin{aligned}
+\mathbf{r}_t &= \sigma (\mathbf{W}_r [\mathbf{h}_{t-1}, \mathbf{x}_t]), \\
+\mathbf{i}_t &= \mathbf{r}_t \otimes \mathbf{h}_{t-1} 
+\end{aligned}, \qquad (12)
+```
+重置门是对前一时刻的隐藏状态进行特征选择。
+- 更新门
+$$
+\begin{aligned}
+\mathbf{z}_t &= \sigma (\mathbf{W}_z [\mathbf{h}_{t-1}, \mathbf{x}_t]), \\
+\tilde{\mathbf{h}}_t &= tanh(\mathbf{W}[\mathbf{r}_t \otimes \mathbf{h}_{t-1}, \mathbf{x}_t]), \\
+\mathbf{h}_t &= (1-\mathbf{z}_t) \otimes \mathbf{h}_{t-1} +\mathbf{z}_t \otimes \tilde{\mathbf{h}}_t, \qquad (13)
+\end{aligned}
+$$
+```math
+\begin{aligned}
+\mathbf{z}_t &= \sigma (\mathbf{W}_z [\mathbf{h}_{t-1}, \mathbf{x}_t]), \\
+\tilde{\mathbf{h}}_t &= tanh(\mathbf{W}[\mathbf{r}_t \otimes \mathbf{h}_{t-1}, \mathbf{x}_t]), \\
+\mathbf{h}_t &= (1-\mathbf{z}_t) \otimes \mathbf{h}_{t-1} +\mathbf{z}_t \otimes \tilde{\mathbf{h}}_t, \qquad (13)
 \end{aligned}
 ```
+对当前时刻的隐藏状态而言，当更新门值为1时，隐藏状态为当前时刻状态，为0是，则隐藏状态为前一时刻状态。  
+
+##### RWKV
+- token shift
+将token右移一位。
+```python
+import torch
+from torch import nn as nn
+
+rd_tensor = torch.randn([3, 10, 256])
+token_shift = nn.ZeroPad2d((0, 0, 1, -1))
+print(rd_tensor)
+print(token_shift(rd_tensor))
+```
+
+##### Mamba
+##### Griffin
+
+
+
+
 
 ## Reference  
 [1] Guo M H, Liu Z N, Mu T J et al. Beyond Self-attention: External Attention using Two Linear Layers for Visual Task [J]. IEEE Transactions on Pattern Analysis and Machine Intelligence, 2023(45):5436-5447.
