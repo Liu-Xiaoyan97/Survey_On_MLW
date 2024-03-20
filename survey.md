@@ -125,10 +125,10 @@ $$
 \end{aligned}, \qquad (11)
 $$
 ```math
-\begin{aligend}
+\begin{aligned}
 \mathbf{o}_t &= \sigma (\mathbf{W}_{o}[\mathbf{h}_{t-1}, \mathbf{x}_t]+\mathbf{b}_{o}) \\
 \mathbf{h}_t &= \mathbf{o}_t \otimes tanh(\mathbf{C}_t)
-\end{aligend}, \qquad (11)
+\end{aligned}, \qquad (11)
 ```
 LSTM相较于传统RNN模型，在长序列建模上，有更好的建模能力（即长距离依赖），缓解了梯度消失或爆炸问题。但内部结构比RNN更加复杂，因此计算也更加复杂。  
 
