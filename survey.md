@@ -86,7 +86,7 @@ $$
 RNN中使用tanh作为激活函数，参数更新时，累乘可能会导致梯度消失，当参数导数大于1时，则累乘会导致梯度爆炸。因此，基于RNN，Hochreiter[16]等人提出LSTM模型，以缓解梯度消失或爆炸现象。
 ##### LSTM  
 如图二(b)所示，LSTM包含输入门、输出门、遗忘门以及细胞状态四个部分。
-- 遗忘门
+- 遗忘门  
 $$
 f_{t} = \sigma (\mathbf{W}_{f}[\mathbf{h}_{t-1},\mathbf{x}_t]+\mathbf{b}_f), \qquad (8)
 $$
@@ -94,7 +94,7 @@ $$
 f_{t} = \sigma (\mathbf{W}_{f}[\mathbf{h}_{t-1},\mathbf{x}_t]+\mathbf{b}_f), \qquad (8)
 ```
 遗忘门控制遗忘速率，这取决于其激活函数sigmoid，sigmoid函数取值为$[0, 1]$，$0$表示完全遗忘，$1$表示完全不遗忘。
-- 输入门 
+- 输入门  
 $$
 \begin{aligned}
 \mathbf{i}_t &= \sigma(\mathbf{W}_i[\mathbf{h}_{t-1}, \mathbf{x}_t]+\mathbf{b}_i)\\
@@ -108,7 +108,7 @@ $$
 \end{aligned}, \\qquad (9)
 ```  
 输入门$\mathbf{i}_{t}$与遗忘门公式一致(见式(8))，$\tilde{\mathbf{C}}_{t}$则与传统RNN一致(见公式(7))。
-- 细胞状态
+- 细胞状态  
 $$
 \mathbf{C}_{t} = f_t \otimes \mathbf{C}_{t-1} + \mathbf{i}_{t} \otimes \tilde{\mathbf{C}}_{t}, \qquad (10)
 $$
@@ -117,7 +117,7 @@ $$
 ```
 细胞状态是对上一个细胞状态特征及当前输入特征的筛选。
 
-- 输出门
+- 输出门  
 $$
 \begin{aligned}
 \mathbf{o}_t &= \sigma (\mathbf{W}_{o}[\mathbf{h}_{t-1}, \mathbf{x}_t]+\mathbf{b}_{o}) \\
@@ -134,7 +134,7 @@ LSTM相较于传统RNN模型，在长序列建模上，有更好的建模能力�
 
 ##### GRU
 GRU[17] (见图二(c))是在RNN和LSTM基础上的改进模型，它能有效捕捉长距离依赖，也可缓解梯度消失或爆炸现象，同时结构和计算比LSTM更加精简。它只包含重置门和更新门。
-- 重置门
+- 重置门  
 $$
 \begin{aligned}
 \mathbf{r}_t &= \sigma (\mathbf{W}_r [\mathbf{h}_{t-1}, \mathbf{x}_t]), \\
@@ -148,7 +148,7 @@ $$
 \end{aligned}, \qquad (12)
 ```
 重置门是对前一时刻的隐藏状态进行特征选择。
-- 更新门
+- 更新门  
 $$
 \begin{aligned}
 \mathbf{z}_t &= \sigma (\mathbf{W}_z [\mathbf{h}_{t-1}, \mathbf{x}_t]), \\
@@ -166,7 +166,7 @@ $$
 对当前时刻的隐藏状态而言，当更新门值为1时，隐藏状态为当前时刻状态，为0是，则隐藏状态为前一时刻状态。  
 
 ##### RWKV
-- token shift
+- token shift  
 将token右移一位。
 ```python
 import torch
@@ -177,6 +177,48 @@ token_shift = nn.ZeroPad2d((0, 0, 1, -1))
 print(rd_tensor)
 print(token_shift(rd_tensor))
 ```
+- inputs of mixing  
+$$
+\begin{aligned}
+r_t &= \mathbf{W}_r \cdot (\mu _r \odot x_t+ (1-\mu _r)\odot x_{t-1}) \\
+k_t &= \mathbf{W}_k \cdot (\mu _k \odot x_t+ (1-\mu _k)\odot x_{t-1}) \\
+v_t &= \mathbf{W}_v \cdot (\mu _v \odot x_t+ (1-\mu _v)\odot x_{t-1})
+\end{aligned}, \qquad (14)
+$$
+```math
+\begin{aligned}
+r_t &= \mathbf{W}_r \cdot (\mu _r \odot x_t+ (1-\mu _r)\odot x_{t-1}) \\
+k_t &= \mathbf{W}_k \cdot (\mu _k \odot x_t+ (1-\mu _k)\odot x_{t-1}) \\
+v_t &= \mathbf{W}_v \cdot (\mu _v \odot x_t+ (1-\mu _v)\odot x_{t-1})
+\end{aligned}, \qquad (14)
+```
+- WKV   
+WKV操作是对AFT[13]的改进。为并行计算，WKV将参数$`\mathbf{W}`$视为一个被相对位置修改的通道向量。在RWKV中，其循环行为被定义为$`\mathbf{WKV}`$向量在时间依赖上的更新，如式(15)。  
+$$
+wkv_t = \frac{\sum _{i=1} ^{t-1} e ^{-(t-1-i)w + k_i} \odot v_i + e ^{u+k_t} \odot v_k}{\sum _{i=1} ^{t-1} e ^{-(t-1-i)w + k_i} + e ^{u+k_t} }, \qquad (15)
+$$
+```math
+wkv_t = \frac{\sum _{i=1} ^{t-1} e ^{-(t-1-i)w + k_i} \odot v_i + e ^{u+k_t} \odot v_k}{\sum _{i=1} ^{t-1} e ^{-(t-1-i)w + k_i} + e ^{u+k_t} }, \qquad (15)
+``` 
+- 输出门  
+$$
+o_t = \mathbf{W}_o \dot (\sigma (r_t) \odot wkv_t), \qquad (16)
+$$
+```math
+o_t = \mathbf{W}_o \dot (\sigma (r_t) \odot wkv_t), \qquad (16)
+```
+
+- 并行计算(Transformer-like training)  
+采用了与SRU[18]类似的方法：
+1. 将前一时刻的隐状态从当前时刻的计算中剥离，以实现并行计算。
+2. 对于矩阵乘积，采用的是将参数矩阵拼接，将输入与参数矩阵做一次矩阵乘积。矩阵乘积是可并行的。
+3. 在wkv中只采用element-wise product
+4. 重新编译element-wise product的cuda kernel  
+
+- RNN-like inference  
+- 嵌入的小值初始化  
+在传统的嵌入后，使用层归一化做小值嵌入，以提高稳定性，为post-LN的深度框架做基础。
+
 
 ##### Mamba
 ##### Griffin
@@ -218,4 +260,6 @@ print(token_shift(rd_tensor))
 
 [16] Hochreiter S, Schmidhuber J. Long Short-Term Memory[J]. Neural Computation. 1997, 9:1735-1780.
 
-[17]  Chung J, Gulcehre C, Cho K et al. Empirical Evaluation of Gated Recurrent Neural Networks on Sequence Modeling[C]. In NIPS 2014. 2014. 
+[17]  Chung J, Gulcehre C, Cho K et al. Empirical Evaluation of Gated Recurrent Neural Networks on Sequence Modeling[C]. In NIPS 2014. 2014.   
+
+[18]  Lei T, Zhang Y, Wang I S et al. Simple recurrent units for highly parallelizable recurrence[C]. In EMNLP 2018, Brussels, Belgium: ACL, 2018:4470-4481.
