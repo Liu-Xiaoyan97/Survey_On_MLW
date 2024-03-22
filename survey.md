@@ -222,21 +222,20 @@ When $`t=1`$, Let $`a_0, b_0 = 0`$, Thus,
 $`a_1 = e^{k_1}\odot v_1 `$.  
 Therefor, eq.1 equals $`a_1`$, Proposition is *TRUE* for $`t=1`$,  
 When $`n=t`$,  
-$$
+```math
 a_t = \sum _{i=1} ^{t-1} e^{-(t-1-i)w+k_i} \odot v_k + e ^{k_t}\odot v_t,
-$$,
+```,
 When $`n=t+1`$, 
-$$
+```math
 \begin{aligned}
 a_{t+1} &= e^{-w} \odot a_t + e^{k_{t+1}}\odot v_{t+1} \\
 &= e^{-w}\odot [\sum _{i=1} ^{t-1} e^{-(t-1-i)w+k_i} \odot v_k + e ^{k_t}\odot v_t]+e^{k_{t+1}} \odot v_{t+1}\\
 &= \sum _{i=1} ^{t} e^{-(t-1-i)w+k_i} \odot v_k + e ^{k_{t+1}}\odot v_{t+1}, \\
 \end{aligned} 
-$$
+```
 Therefore, Proposition is *TRUE* for $`n=t`$ and $`n=t+1`$.  
 Since, we have Proposition is *TRUE* for $`n=1`$ and $`n=t+1`$,  
-Therefore,$` a_t = \sum _{i=1} ^{t-1} e^{-(t-1-i)w+k_i} \odot v_k + e ^{k_t}\odot v_t. 
-`$  
+Therefore,$` a_t = \sum _{i=1} ^{t-1} e^{-(t-1-i)w+k_i} \odot v_k + e ^{k_t}\odot v_t`$.  
 The proof for b is the same as for a.  
 至此，WKV operation确实可实现rnn推理。  
 - 嵌入的小值初始化  
