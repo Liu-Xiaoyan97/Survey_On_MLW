@@ -224,7 +224,7 @@ Therefor, eq.1 equals $`a_1`$, Proposition is *TRUE* for $`t=1`$,
 When $`n=t`$,  
 ```math
 a_t = \sum _{i=1} ^{t-1} e^{-(t-1-i)w+k_i} \odot v_k + e ^{k_t}\odot v_t,
-```,
+```
 When $`n=t+1`$, 
 ```math
 \begin{aligned}
