@@ -216,13 +216,35 @@ o_t = \mathbf{W}_o \dot (\sigma (r_t) \odot wkv_t), \qquad (16)
 4. 重新编译element-wise product的cuda kernel  
 
 - RNN-like inference  
+wkv operation 在形式上采用了类似于AFT[13]的simple formation，这种方式是为了并行计算。在本质上是RNN, wkv的分子与分母是递归形式的。下面，将对式(15)的分子($`a_t=\sum _{i=1} ^{t-1} e^{-(t-1-i)w+k_i} \odot v_k + e ^{k_t}\odot v_t`, (eq.1)$)分母($`b_t=\sum _{i=1} ^{t-1} e^{-(t-1-i)w+k_i} + e ^{k_t}`$)递归式进行证明。    
+**Proof:**  
+When $`t=1`$, Let $`a_0, b_0 = 0`$, Thus, 
+$`a_1 = e^{k_1}\odot v_1 `$.  
+Therefor, eq.1 equals $`a_1`$, Proposition is *TRUE* for $`t=1`$,  
+When $`n=t`$,  
+$$
+a_t = \sum _{i=1} ^{t-1} e^{-(t-1-i)w+k_i} \odot v_k + e ^{k_t}\odot v_t,
+$$,
+When $`n=t+1`$, 
+$$
+\begin{aligned}
+a_{t+1} &= e^{-w} \odot a_t + e^{k_{t+1}}\odot v_{t+1} \\
+&= e^{-w}\odot [\sum _{i=1} ^{t-1} e^{-(t-1-i)w+k_i} \odot v_k + e ^{k_t}\odot v_t]+e^{k_{t+1}} \odot v_{t+1}\\
+&= \sum _{i=1} ^{t} e^{-(t-1-i)w+k_i} \odot v_k + e ^{k_{t+1}}\odot v_{t+1}, \\
+\end{aligned} 
+$$
+Therefore, Proposition is *TRUE* for $`n=t`$ and $`n=t+1`$.  
+Since, we have Proposition is *TRUE* for $`n=1`$ and $`n=t+1`$,  
+Therefore,$` a_t = \sum _{i=1} ^{t-1} e^{-(t-1-i)w+k_i} \odot v_k + e ^{k_t}\odot v_t. 
+`$  
+The proof for b is the same as for a.  
+至此，WKV operation确实可实现rnn推理。  
 - 嵌入的小值初始化  
 在传统的嵌入后，使用层归一化做小值嵌入，以提高稳定性，为post-LN的深度框架做基础。
 
 
 ##### Mamba
 ##### Griffin
-
 
 
 
